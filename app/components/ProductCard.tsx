@@ -1,4 +1,3 @@
-// components/ProductCard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +12,21 @@ type Product = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const [showModal, setShowModal] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleAddToCart = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  
+  const form = new FormData(event.currentTarget);
+  const productData = JSON.parse(form.get('product') as string)
+  
+  const size = form.get('size') as string
+  const color = form.get('color') as string
+  await addToCartAction({ ...productData, size, color }); // pošlje formData namesto objekta
+
+  setAddedToCart(true);
+  setTimeout(() => setAddedToCart(false), 2000);
+};
 
   return (
     <>
@@ -87,10 +101,56 @@ export default function ProductCard({ product }: { product: Product }) {
                   {product.price.toFixed(2)} €
                 </div>
 
-                <form action={addToCartAction} className="w-full">
+                <form onSubmit={handleAddToCart} className="w-full">
+
                   <input type="hidden" name="product" value={JSON.stringify(product)} />
-                  <button className="w-full bg-indigo-600 text-white text-2xl font-bold py-6 rounded-2xl hover:bg-indigo-700 transition transform hover:scale-105 shadow-xl">
-                    Dodaj v košarico
+
+                  {/* Izbira velikosti */}
+                  <div className="flex flex-col">
+                    <label htmlFor="size" className="text-black font-medium mb-1">
+                      Velikost
+                    </label>
+                    <select
+                      id="size"
+                      name="size"
+                      className="border border-gray-300 rounded-lg p-3 text-black text-lg"
+                      required
+                    >
+                      <option value="">Izberi velikost</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
+                  </div>
+
+                  {/* Izbira barve */}
+                  <div className="flex flex-col">
+                    <label htmlFor="color" className="text-black font-medium mb-1">
+                      Barva
+                    </label>
+                    <select
+                      id="color"
+                      name="color"
+                      className="border border-gray-300 rounded-lg p-3 text-black text-lg"
+                      required
+                    >
+                      <option value="">Izberi barvo</option>
+                      <option value="Črna">Črna</option>
+                      <option value="Bela">Bela</option>
+                      <option value="Rdeča">Rdeča</option>
+                      <option value="Modra">Modra</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className={`w-full text-2xl font-bold py-6 rounded-2xl transition transform hover:scale-105 shadow-xl
+                      ${addedToCart 
+                        ? 'bg-green-600 text-white hover:bg-green-700' 
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                  >
+                    {addedToCart ? 'Dodano v košarico' : 'Dodaj v košarico'}
                   </button>
                 </form>
 

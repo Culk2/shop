@@ -22,14 +22,23 @@ export default {
             { name: 'slug', type: 'string', title: 'Slug' },
             { name: 'name', type: 'string', title: 'Ime' },
             { name: 'price', type: 'number', title: 'Cena' },
-            { name: 'quantity', type: 'number', title: 'Količina', validation: (Rule: any) => Rule.min(1) },
-            { name: 'imageUrl', type: 'string', title: 'Image URL' }
+            {
+              name: 'quantity',
+              type: 'number',
+              title: 'Količina',
+              validation: (Rule: any) => Rule.min(1),
+            },
+            { name: 'imageUrl', type: 'string', title: 'Image URL' },
+
+            // DODANO: velikost in barva
+            { name: 'selectedSize', type: 'string', title: 'Velikost' },
+            { name: 'selectedColor', type: 'string', title: 'Barva' },
           ],
           preview: {
             select: {
               title: 'name',
               subtitle: 'quantity',
-              media: 'image',
+              media: 'imageUrl',
             },
           },
         },

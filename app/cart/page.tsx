@@ -54,6 +54,19 @@ export default async function CartPage() {
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">
                           {item.name}
                         </h3>
+
+                        {/* Velikost in barva */}
+                        {item.size && (
+                          <p className="text-black text-lg mb-1">
+                            Velikost: <strong>{item.size}</strong>
+                          </p>
+                        )}
+                        {item.color && (
+                          <p className="text-black text-lg mb-1">
+                            Barva: <strong>{item.color}</strong>
+                          </p>
+                        )}
+
                         <p className="text-3xl font-bold text-indigo-600">
                           {item.price.toFixed(2)} €
                         </p>

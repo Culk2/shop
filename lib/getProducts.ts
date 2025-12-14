@@ -7,6 +7,7 @@ export async function getProducts() {
     name,
     price,
     "imageUrl": image.asset->url,
-    "slug": slug.current
+    sizes,
+    colors
   }`);
 }

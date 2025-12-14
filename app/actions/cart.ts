@@ -3,13 +3,20 @@
 import { addToCart } from '@/lib/cart'
 import { revalidatePath } from 'next/cache'
 
-export async function addToCartAction(formData: FormData) {
-  const rawProduct = formData.get('product')
-  if (!rawProduct) return
-
-  const product = JSON.parse(rawProduct as string)
+// Sprejme navaden objekt, ne FormData
+export async function addToCartAction(product: {
+  _id: string
+  name: string
+  price: number
+  imageUrl?: string | null
+  size?: string | null
+  color?: string | null
+}) {
+  if (!product) return
 
   await addToCart(product)
+
+  // Osveži poti, kjer se prikazuje košarica
   revalidatePath('/cart')
   revalidatePath('/shop')
 }

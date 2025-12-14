@@ -25,6 +25,8 @@ export async function addToCart(product: any, quantity = 1) {
     price: product.price,
     quantity,
     imageUrl: product.imageUrl || '/placeholder.jpg',
+    size: product.size || null,
+    color: product.color || null,
   }
 
   // GLAVNA SPREMEMBA: uporabi createIfNotExists + upsert
