@@ -2,31 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { getProducts } from "@/lib/getProducts";
-import ProductCard from './components/ProductCard';
-
-interface Category {
-  _id: string;
-  name: string;
-}
+import ProductCard from "./components/ProductCard";
 
 interface Product {
   _id: string;
   name: string;
   price: number;
   imageUrl?: string | null;
-  category?: {
-    _id: string;
-    title: string;
-  };
+  category?: string | { title?: string };
 }
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [priceFilter, setPriceFilter] = useState<string>("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [priceFilter, setPriceFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [allProducts, setAllProducts] = useState<Product[]>([]);
 
-  // Na mount naloži izdelke
+  // Naloži izdelke
   useEffect(() => {
     async function fetchProducts() {
       const prods = await getProducts();
@@ -35,27 +27,37 @@ export default function HomePage() {
     fetchProducts();
   }, []);
 
-  // Dobi seznam vseh kategorij iz izdelkov (uporablja name iz populated reference)
+  // Normalizacija kategorije → vedno string
+  const getCategoryName = (category?: Product["category"]) => {
+    if (!category) return null;
+    if (typeof category === "string") return category;
+    return category.title ?? null;
+  };
+
+  // Unikatne kategorije
   const categories = Array.from(
     new Set(
       allProducts
-        .map((p: Product) => p.category?.title)
+        .map((p) => getCategoryName(p.category))
         .filter((c): c is string => Boolean(c))
     )
   );
 
-  // Filtriranje po search, ceni in kategoriji
+  // Filtriranje izdelkov
   const filteredProducts = allProducts.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
     let matchesPrice = true;
     if (priceFilter === "under20") matchesPrice = product.price < 20;
-    else if (priceFilter === "20to50") matchesPrice = product.price >= 20 && product.price <= 50;
+    else if (priceFilter === "20to50")
+      matchesPrice = product.price >= 20 && product.price <= 50;
     else if (priceFilter === "over50") matchesPrice = product.price > 50;
 
-    let matchesCategory =
-    categoryFilter === "all" ||
-    product.category?.title === categoryFilter;
+    const productCategory = getCategoryName(product.category);
+    const matchesCategory =
+      categoryFilter === "all" || productCategory === categoryFilter;
 
     return matchesSearch && matchesPrice && matchesCategory;
   });
@@ -69,7 +71,7 @@ export default function HomePage() {
           </h1>
 
           <div className="flex gap-2 flex-wrap">
-            {/* Search bar */}
+            {/* Search */}
             <input
               type="text"
               placeholder="Išči izdelek..."
@@ -112,7 +114,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredProducts.map((product: Product) => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>
