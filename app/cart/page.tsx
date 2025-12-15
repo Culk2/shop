@@ -1,15 +1,20 @@
-
 import { getCart } from '@/lib/cart'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
-import { ShoppingBag, Trash2 } from 'lucide-react'
-import { removeFromCart } from '@/app/actions/removeFromCart'
+import { ShoppingBag } from 'lucide-react'
+import CartItemControls from './CartItemControls'
+import CartItemCard from './CartItemCard'
 
 export default async function CartPage() {
   const cart = await getCart()
 
   const totalPrice = cart?.items?.reduce(
     (sum: number, item: any) => sum + item.price * item.quantity,
+    0
+  ) || 0
+
+  const totalQuantity = cart?.items?.reduce(
+    (sum: number, item: any) => sum + item.quantity,
     0
   ) || 0
 
@@ -26,78 +31,7 @@ export default async function CartPage() {
               {/* Seznam izdelkov */}
               <div className="lg:col-span-2 space-y-6">
                 {cart.items.map((item: any) => (
-                  <div
-                    key={item._key}
-                    className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex"
-                  >
-                    {/* Slika */}
-                    <div className="w-48 h-48 flex-shrink-0 bg-gray-100 overflow-hidden">
-                      {item.imageUrl ? (
-                        <img
-                        src={item.imageUrl 
-                            ? `${item.imageUrl}?w=600&h=600&fit=crop&auto=format`
-                            : '/placeholder.jpg'
-                        }
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 border-2 border-dashed flex items-center justify-center">
-                          <span className="text-gray-500">Brez slike</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Podatki + gumb za brisanje */}
-                    <div className="flex-1 p-6 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                          {item.name}
-                        </h3>
-
-                        {/* Velikost in barva */}
-                        {item.size && (
-                          <p className="text-black text-lg mb-1">
-                            Velikost: <strong>{item.size}</strong>
-                          </p>
-                        )}
-                        {item.color && (
-                          <p className="text-black text-lg mb-1">
-                            Barva: <strong>{item.color}</strong>
-                          </p>
-                        )}
-
-                        <p className="text-3xl font-bold text-indigo-600">
-                          {item.price.toFixed(2)} €
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-6">
-                        <span className="text-gray-600">
-                          Količina: <strong className="text-gray-900">{item.quantity}</strong>
-                        </span>
-
-                        <form action={async () => {
-                                'use server'
-                                await removeFromCart(item._key)
-                            }}>
-                                <button
-                                type="submit"
-                                className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-3 rounded-lg transition-all"
-                                title="Odstrani iz košarice"
-                                >
-                                <Trash2 className="w-6 h-6" />
-                                </button>
-                            </form>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t border-gray-200 text-right">
-                        <p className="text-xl font-bold text-gray-900">
-                          {(item.price * item.quantity).toFixed(2)} €
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <CartItemCard key={item._key} item={item} />
                 ))}
               </div>
 
@@ -108,7 +42,7 @@ export default async function CartPage() {
 
                   <div className="space-y-4 text-lg">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Izdelki ({cart.items.length})</span>
+                      <span className="text-gray-600">Izdelki ({totalQuantity})</span>
                       <span>{totalPrice.toFixed(2)} €</span>
                     </div>
                     <div className="flex justify-between">
@@ -156,19 +90,16 @@ export default async function CartPage() {
           )}
         </SignedIn>
 
-
         <SignedOut>
-            <SignInButton mode="modal">
+          <SignInButton mode="modal">
             <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-                Prijava
+              Prijava
             </button>
-            </SignInButton>
+          </SignInButton>
         </SignedOut>
-         <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+        <SignedIn>
+          <UserButton afterSignOutUrl="/" />
         </SignedIn>
-
-
       </div>
     </main>
   )

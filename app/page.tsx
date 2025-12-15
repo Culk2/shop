@@ -1,40 +1,104 @@
-// app/page.tsx (ali app/shop/page.tsx)
+'use client';
+
+import { useState, useMemo } from "react";
 import { getProducts } from "@/lib/getProducts";
-import ProductCard from './components/ProductCard'; // nova client komponenta
+import ProductCard from './components/ProductCard';
 
 interface Product {
   _id: string;
   name: string;
   price: number;
+  category?: string;
   imageUrl?: string | null;
 }
 
-export default async function HomePage() {
-  const products = await getProducts();
+export default function HomePage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priceFilter, setPriceFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
-  if (!products || products.length === 0) {
-    return (
-      <main className="min-h-screen bg-gray-50 py-12 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Naši izdelki</h1>
-          <p className="text-lg text-gray-600">Trenutno ni na voljo nobenega izdelka.</p>
-        </div>
-      </main>
-    );
-  }
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+
+  // Na mount naloži izdelke
+  useMemo(async () => {
+    const prods = await getProducts();
+    setAllProducts(prods || []);
+  }, []);
+
+  // Dobi seznam vseh kategorij iz izdelkov
+  const categories = Array.from(new Set(allProducts.map(p => p.category).filter(Boolean)));
+
+  // Filtriranje po search, ceni in kategoriji
+  const filteredProducts = allProducts.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    let matchesPrice = true;
+    if (priceFilter === "under20") matchesPrice = product.price < 20;
+    else if (priceFilter === "20to50") matchesPrice = product.price >= 20 && product.price <= 50;
+    else if (priceFilter === "over50") matchesPrice = product.price > 50;
+
+    let matchesCategory = categoryFilter === "all" || product.category === categoryFilter;
+
+    return matchesSearch && matchesPrice && matchesCategory;
+  });
 
   return (
     <main className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl font-bold text-center text-gray-900 mb-12">
-          Naši izdelki
-        </h1>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">
+            Naši izdelki
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {products.map((product: Product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
+          <div className="flex gap-2 flex-wrap">
+            {/* Search bar */}
+            <input
+              type="text"
+              placeholder="Išči izdelek..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 w-64 bg-black text-white"
+            />
+
+            {/* Filter po ceni */}
+            <select
+              value={priceFilter}
+              onChange={(e) => setPriceFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-black text-white"
+            >
+              <option value="all">Vse cene</option>
+              <option value="under20">Pod 20€</option>
+              <option value="20to50">20€ - 50€</option>
+              <option value="over50">Nad 50€</option>
+            </select>
+
+            {/* Filter po kategorijah */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-black text-white"
+            >
+              <option value="all">Vse kategorije</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {filteredProducts.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-lg text-gray-600">Ni najdenih izdelkov.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredProducts.map((product: Product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

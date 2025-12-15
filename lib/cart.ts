@@ -1,70 +1,114 @@
 // app/lib/cart.ts
-// lib/cart.ts
-import { createClient } from '@sanity/client'
+import { createClient, SanityDocument } from '@sanity/client'
 import { currentUser } from '@clerk/nextjs/server'
-import { urlFor } from '@/sanity/lib/image'
+
+interface CartItem {
+  _key: string
+  _type: string
+  productId: string
+  slug?: string
+  name: string
+  price: number
+  quantity: number
+  imageUrl?: string
+  size?: string | null
+  color?: string | null
+}
+
+interface Cart extends SanityDocument {
+  userId: string
+  items: CartItem[]
+}
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
   apiVersion: '2024-01-01',
   useCdn: false,
-  token: process.env.SANITY_WRITE_TOKEN!, // mora biti write token!
+  token: process.env.SANITY_WRITE_TOKEN!,
 })
 
-export async function addToCart(product: any, quantity = 1) {
+export async function addToCart(product: any) {
   const user = await currentUser()
   if (!user) return false
 
-  const cartItem = {
-    _key: product._id + '-' + Date.now(), // edinstven key
-    _type: 'object',
-    productId: product._id,
-    slug: typeof product.slug === 'string' ? product.slug : product.slug?.current,
-    name: product.name,
-    price: product.price,
-    quantity,
-    imageUrl: product.imageUrl || '/placeholder.jpg',
-    size: product.size || null,
-    color: product.color || null,
+  let cart: Cart | null = null
+  try {
+    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
+  } catch {
+    cart = null
   }
 
-  // GLAVNA SPREMEMBA: uporabi createIfNotExists + upsert
-  try {
-    await client
-      .patch(user.id)
-      .setIfMissing({ items: [] })
-      .append('items', [cartItem])
-      .commit()
-  } catch (error: any) {
-    if (error.message.includes('not found') || error.statusCode === 404) {
-      await client.create({
-        _id: user.id,
-        _type: 'cart',
-        userId: user.id,
-        items: [cartItem],
-      })
-    } else {
-      console.error('Napaka pri dodajanju v košarico:', error)
-      throw error
-    }
+  if (!cart) {
+    // ustvari prazno košarico
+    const newCart = {
+      _type: 'cart',
+      userId: user.id,
+      items: [],
+    } as unknown as Cart
+
+    cart = await client.create(newCart) as Cart
   }
+
+  cart.items = cart.items || []
+
+  // Poišči obstoječi izdelek z enakim _id, size in color
+  const existingIndex = cart.items.findIndex(
+    (item) =>
+      item.productId === product._id &&
+      item.size === product.size &&
+      item.color === product.color
+  )
+
+  if (existingIndex !== -1) {
+    cart.items[existingIndex].quantity += product.quantity || 1
+  } else {
+    cart.items.push({
+      _key: product._id + '-' + Date.now(),
+      _type: 'object',
+      productId: product._id,
+      slug: typeof product.slug === 'string' ? product.slug : product.slug?.current,
+      name: product.name,
+      price: product.price,
+      quantity: product.quantity || 1,
+      imageUrl: product.imageUrl || '/placeholder.jpg',
+      size: product.size || null,
+      color: product.color || null,
+    })
+  }
+
+  await client.patch(cart._id).set({ items: cart.items }).commit()
 }
 
-// Pridobi košarico za trenutnega uporabnika
-export async function getCart() {
+export async function getCart(): Promise<Cart> {
   const user = await currentUser()
-  if (!user) return null
+  if (!user) {
+    return {
+      _id: '',
+      _type: 'cart',
+      userId: '',
+      items: [],
+    } as unknown as Cart
+  }
 
-  const cart = await client.getDocument(user.id)
-  return cart || { items: [] }
+  let cart: Cart | null = null
+  try {
+    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
+  } catch {
+    cart = null
+  }
+
+  return cart ?? ({
+    _id: '',
+    _type: 'cart',
+    userId: user.id,
+    items: [],
+  } as unknown as Cart)
 }
 
 export async function clearCart() {
   const user = await currentUser()
   if (!user) return
-  await client
-    .patch(user.id)
-    .set({ items: [] })
-    .commit()
+
+  await client.patch(user.id).set({ items: [] }).commit()
 }
