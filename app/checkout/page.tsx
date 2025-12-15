@@ -18,15 +18,15 @@ export default async function CheckoutPage() {
     ) || 0
 
   return (
-    <main className="min-h-screen bg-gray-50 py-16 px-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 space-y-8">
-        <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
+    <main className="min-h-screen bg-gray-50 py-16 px-4 text-black">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 space-y-8 text-black">
+        <h1 className="text-3xl font-bold text-black">Checkout</h1>
 
         <SignedIn>
           {/* Povzetek izdelkov */}
           <div className="space-y-4">
             {cart.items.map((item: any) => (
-              <div key={item._key} className="flex justify-between">
+              <div key={item._key} className="flex justify-between text-black">
                 <span>
                   {item.name} × {item.quantity}
                 </span>
@@ -38,7 +38,7 @@ export default async function CheckoutPage() {
           </div>
 
           {/* Skupaj */}
-          <div className="border-t pt-6 flex justify-between text-2xl font-bold">
+          <div className="border-t pt-6 flex justify-between text-2xl font-bold text-black">
             <span>Skupaj</span>
             <span className="text-indigo-600">
               {totalPrice.toFixed(2)} €
@@ -50,7 +50,7 @@ export default async function CheckoutPage() {
         </SignedIn>
 
         <SignedOut>
-          <div className="text-center">
+          <div className="text-center text-black">
             <p className="mb-4">Za nadaljevanje se prijavi</p>
             <SignInButton mode="modal">
               <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg">

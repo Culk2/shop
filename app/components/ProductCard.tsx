@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { addToCartAction } from '@/app/actions/cart';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 type Product = {
   _id: string;
@@ -32,33 +33,28 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      {/* KARTICA – klikabilna */}
-      <button
-        onClick={() => setShowModal(true)}
-        className='w-full text-left group block'
-      >
-        <div className='bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2'>
+      {/* KARTICA */}
+      <button onClick={() => setShowModal(true)} className="w-full text-left group block">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2">
           {product.imageUrl ? (
-            <div className='relative aspect-square bg-gray-100 overflow-hidden'>
+            <div className="relative aspect-square bg-gray-100 overflow-hidden">
               <img
                 src={`${product.imageUrl}?w=800&h=800&fit=crop&auto=format`}
                 alt={product.name}
-                className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500'
-                loading='lazy'
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
-              <div className='absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity' />
             </div>
           ) : (
-            <div className='bg-gray-200 border-2 border-dashed rounded-t-xl w-full aspect-square flex items-center justify-center'>
-              <span className='text-gray-500 text-lg font-medium'>Brez slike</span>
+            <div className="bg-gray-200 border-2 border-dashed rounded-t-xl w-full aspect-square flex items-center justify-center">
+              <span className="text-black text-lg font-medium">Brez slike</span>
             </div>
           )}
 
-          <div className='p-6 pb-2'>
-            <h2 className='text-xl font-semibold text-gray-900 mb-2 line-clamp-2'>
+          <div className="p-6 pb-2">
+            <h2 className="text-xl font-semibold text-black mb-2">
               {product.name}
             </h2>
-            <span className='text-3xl font-bold text-indigo-600'>
+            <span className="text-3xl font-bold text-indigo-600">
               {product.price.toFixed(2)} €
             </span>
           </div>
@@ -67,107 +63,104 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* MODAL */}
       {showModal && (
-        <div 
-          className='fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4'
+        <div
+          className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4"
           onClick={() => setShowModal(false)}
         >
-          <div 
-            className='bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative'
+          <div
+            className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
+            <button
               onClick={() => setShowModal(false)}
-              className='absolute top-6 right-6 bg-white rounded-full p-3 shadow-lg z-10 text-3xl font-bold hover:bg-gray-100'
+              className="absolute top-6 right-6 bg-white rounded-full p-3 shadow-lg text-3xl font-bold text-black"
             >
               ×
             </button>
 
-            <div className='grid md:grid-cols-2 gap-10 p-10'>
-              <div className='aspect-square bg-gray-50 rounded-2xl overflow-hidden'>
+            <div className="grid md:grid-cols-2 gap-10 p-10">
+              <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden">
                 {product.imageUrl ? (
-                  <img 
+                  <img
                     src={`${product.imageUrl}?w=1400&h=1400&fit=crop&auto=format`}
                     alt={product.name}
-                    className='w-full h-full object-cover'
+                    className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className='w-full h-full flex items-center justify-center text-gray-400 text-2xl'>
+                  <div className="w-full h-full flex items-center justify-center text-black text-2xl">
                     Brez slike
                   </div>
                 )}
               </div>
 
-              <div className='flex flex-col justify-center space-y-8'>
-                <h1 className='text-5xl font-bold text-gray-900'>{product.name}</h1>
-                <div className='text-6xl font-bold text-indigo-600'>
+              <div className="flex flex-col justify-center space-y-8">
+                <h1 className="text-5xl font-bold text-black">{product.name}</h1>
+
+                <div className="text-6xl font-bold text-indigo-600">
                   {product.price.toFixed(2)} €
                 </div>
 
-                <form onSubmit={handleAddToCart} className='w-full'>
+                {/* PRIJAVLJEN */}
+                <SignedIn>
+                  <form onSubmit={handleAddToCart} className="w-full space-y-4">
+                    <input type="hidden" name="product" value={JSON.stringify(product)} />
 
-                  <input type='hidden' name='product' value={JSON.stringify(product)} />
+                    <div className="flex flex-col">
+                      <label className="text-black mb-1">Velikost</label>
+                      <select name="size" required className="border p-3 rounded text-black">
+                        <option value="">Izberi velikost</option>
+                        <option>S</option>
+                        <option>M</option>
+                        <option>L</option>
+                        <option>XL</option>
+                      </select>
+                    </div>
 
-                  {/* Izbira velikosti */}
-                  <div className='flex flex-col'>
-                    <label htmlFor='size' className='text-black font-medium mb-1'>Velikost</label>
-                    <select
-                      id='size'
-                      name='size'
-                      className='border border-gray-300 rounded-lg p-3 text-black text-lg'
-                      required
+                    <div className="flex flex-col">
+                      <label className="text-black mb-1">Barva</label>
+                      <select name="color" required className="border p-3 rounded text-black">
+                        <option value="">Izberi barvo</option>
+                        <option>Črna</option>
+                        <option>Bela</option>
+                        <option>Rdeča</option>
+                        <option>Modra</option>
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-black mb-1">Količina</label>
+                      <input
+                        type="number"
+                        name="quantity"
+                        min={1}
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value) || 1)}
+                        className="border p-3 rounded text-black"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className={`w-full mt-6 py-4 rounded-xl text-xl font-bold transition
+                        ${addedToCart ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white'}`}
                     >
-                      <option value=''>Izberi velikost</option>
-                      <option value='S'>S</option>
-                      <option value='M'>M</option>
-                      <option value='L'>L</option>
-                      <option value='XL'>XL</option>
-                    </select>
-                  </div>
+                      {addedToCart ? 'Dodano v košarico' : 'Dodaj v košarico'}
+                    </button>
+                  </form>
+                </SignedIn>
 
-                  {/* Izbira barve */}
-                  <div className='flex flex-col'>
-                    <label htmlFor='color' className='text-black font-medium mb-1'>Barva</label>
-                    <select
-                      id='color'
-                      name='color'
-                      className='border border-gray-300 rounded-lg p-3 text-black text-lg'
-                      required
-                    >
-                      <option value=''>Izberi barvo</option>
-                      <option value='Črna'>Črna</option>
-                      <option value='Bela'>Bela</option>
-                      <option value='Rdeča'>Rdeča</option>
-                      <option value='Modra'>Modra</option>
-                    </select>
-                  </div>
+                {/* NEPRIJAVLJEN */}
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="w-full py-4 rounded-xl bg-black text-white text-xl font-bold">
+                      Najprej se prijavi
+                    </button>
+                  </SignInButton>
+                </SignedOut>
 
-                  {/* Izbira količine */}
-                  <div className='flex flex-col'>
-                    <label htmlFor='quantity' className='text-black font-medium mb-1'>Količina</label>
-                    <input
-                      type='number'
-                      id='quantity'
-                      name='quantity'
-                      className='border border-gray-300 rounded-lg p-3 text-black text-lg'
-                      min={1}
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value) || 1)}
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type='submit'
-                    className={`w-full text-2xl font-bold py-6 rounded-2xl transition transform hover:scale-105 shadow-xl
-                      ${addedToCart ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-                  >
-                    {addedToCart ? 'Dodano v košarico' : 'Dodaj v košarico'}
-                  </button>
-                </form>
-
-                <button 
+                <button
                   onClick={() => setShowModal(false)}
-                  className='text-center text-gray-500 hover:text-gray-700 font-medium text-lg'
+                  className="text-center text-black font-medium text-lg"
                 >
                   Zapri
                 </button>
