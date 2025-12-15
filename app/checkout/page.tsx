@@ -1,0 +1,65 @@
+// app/checkout/page.tsx
+import { getCart } from '@/lib/cart'
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
+import CheckoutPayButton from './pay-button'
+
+export default async function CheckoutPage() {
+  const cart = await getCart()
+
+  if (!cart || !cart.items?.length) {
+    redirect('/checkout/success')
+  }
+
+  const totalPrice =
+    cart.items.reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity,
+      0
+    ) || 0
+
+  return (
+    <main className="min-h-screen bg-gray-50 py-16 px-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8 space-y-8">
+        <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
+
+        <SignedIn>
+          {/* Povzetek izdelkov */}
+          <div className="space-y-4">
+            {cart.items.map((item: any) => (
+              <div key={item._key} className="flex justify-between">
+                <span>
+                  {item.name} × {item.quantity}
+                </span>
+                <span>
+                  {(item.price * item.quantity).toFixed(2)} €
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Skupaj */}
+          <div className="border-t pt-6 flex justify-between text-2xl font-bold">
+            <span>Skupaj</span>
+            <span className="text-indigo-600">
+              {totalPrice.toFixed(2)} €
+            </span>
+          </div>
+
+          {/* Gumb za plačilo */}
+          <CheckoutPayButton items={cart.items} totalPrice={totalPrice} />
+        </SignedIn>
+
+        <SignedOut>
+          <div className="text-center">
+            <p className="mb-4">Za nadaljevanje se prijavi</p>
+            <SignInButton mode="modal">
+              <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg">
+                Prijava
+              </button>
+            </SignInButton>
+          </div>
+        </SignedOut>
+      </div>
+    </main>
+  )
+}

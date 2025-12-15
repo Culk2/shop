@@ -59,3 +59,12 @@ export async function getCart() {
   const cart = await client.getDocument(user.id)
   return cart || { items: [] }
 }
+
+export async function clearCart() {
+  const user = await currentUser()
+  if (!user) return
+  await client
+    .patch(user.id)
+    .set({ items: [] })
+    .commit()
+}

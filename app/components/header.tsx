@@ -58,8 +58,14 @@ export default function Header() {
             </Link>
           </nav>
 
+          <nav className="flex items-center gap-10">
+            <Link href="/about" className="text-gray-700 hover:text-indigo-600 font-medium text-lg transition">
+              O Nas
+            </Link>
+          </nav>
+
           <div className="flex items-center gap-6">
-            <div className="relative">
+           {/* <div className="relative">
               <input
                 type="text"
                 placeholder="Poišči oblačilo..."
@@ -67,7 +73,7 @@ export default function Header() {
               />
               <Search className="absolute left-4 top-3.5 w-6 h-6 text-gray-400" />
             </div>
-
+            */}
             {/* Košarica z live badge-om */}
             <Link href="/cart" className="relative">
               <ShoppingBag className="w-8 h-8 text-gray-700 hover:text-indigo-600 transition" />
