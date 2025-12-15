@@ -13,8 +13,11 @@ interface Product {
   _id: string;
   name: string;
   price: number;
-  category?: Category | null;
   imageUrl?: string | null;
+  category?: {
+    _id: string;
+    title: string;
+  };
 }
 
 export default function HomePage() {
@@ -34,8 +37,12 @@ export default function HomePage() {
 
   // Dobi seznam vseh kategorij iz izdelkov (uporablja name iz populated reference)
   const categories = Array.from(
-    new Set(allProducts.map(p => p.category?.name).filter(Boolean))
-  ) as string[];
+    new Set(
+      allProducts
+        .map((p: Product) => p.category?.title)
+        .filter((c): c is string => Boolean(c))
+    )
+  );
 
   // Filtriranje po search, ceni in kategoriji
   const filteredProducts = allProducts.filter((product) => {
@@ -46,7 +53,9 @@ export default function HomePage() {
     else if (priceFilter === "20to50") matchesPrice = product.price >= 20 && product.price <= 50;
     else if (priceFilter === "over50") matchesPrice = product.price > 50;
 
-    let matchesCategory = categoryFilter === "all" || product.category?.name === categoryFilter;
+    let matchesCategory =
+    categoryFilter === "all" ||
+    product.category?.title === categoryFilter;
 
     return matchesSearch && matchesPrice && matchesCategory;
   });
