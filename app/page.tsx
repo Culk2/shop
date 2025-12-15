@@ -1,14 +1,19 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { getProducts } from "@/lib/getProducts";
 import ProductCard from './components/ProductCard';
+
+interface Category {
+  _id: string;
+  name: string;
+}
 
 interface Product {
   _id: string;
   name: string;
   price: number;
-  category?: string;
+  category?: Category | null;
   imageUrl?: string | null;
 }
 
@@ -16,17 +21,21 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [priceFilter, setPriceFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-
   const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   // Na mount naloži izdelke
-  useMemo(async () => {
-    const prods = await getProducts();
-    setAllProducts(prods || []);
+  useEffect(() => {
+    async function fetchProducts() {
+      const prods = await getProducts();
+      setAllProducts(prods || []);
+    }
+    fetchProducts();
   }, []);
 
-  // Dobi seznam vseh kategorij iz izdelkov
-  const categories = Array.from(new Set(allProducts.map(p => p.category).filter(Boolean)));
+  // Dobi seznam vseh kategorij iz izdelkov (uporablja name iz populated reference)
+  const categories = Array.from(
+    new Set(allProducts.map(p => p.category?.name).filter(Boolean))
+  ) as string[];
 
   // Filtriranje po search, ceni in kategoriji
   const filteredProducts = allProducts.filter((product) => {
@@ -37,7 +46,7 @@ export default function HomePage() {
     else if (priceFilter === "20to50") matchesPrice = product.price >= 20 && product.price <= 50;
     else if (priceFilter === "over50") matchesPrice = product.price > 50;
 
-    let matchesCategory = categoryFilter === "all" || product.category === categoryFilter;
+    let matchesCategory = categoryFilter === "all" || product.category?.name === categoryFilter;
 
     return matchesSearch && matchesPrice && matchesCategory;
   });
