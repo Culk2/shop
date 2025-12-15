@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+StyleUp 🛍️
 
-## Getting Started
+StyleUp je moderna spletna trgovina, namenjena ljubiteljem mode, ki iščejo trendne obleke, obutev in modne dodatke. Platforma omogoča uporabnikom enostavno brskanje, dodajanje izdelkov v košarico in nakup preko varnega sistema plačil.
 
-First, run the development server:
+Funkcionalnosti
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Prijava in registracija uporabnikov
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Brskanje po kategorijah izdelkov
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Dodajanje izdelkov v košarico
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Sistem za pregled in urejanje košarice
 
-## Learn More
+Plačilni sistem (simuliran / integracija z API)
 
-To learn more about Next.js, take a look at the following resources:
+Administratorski panel za dodajanje, urejanje in brisanje izdelkov
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Responsiven dizajn za mobilne naprave in tablice
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tehnologije
 
-## Deploy on Vercel
+Frontend: HTML, CSS, JavaScript, React
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Backend: Node.js
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Baza podatkov: Sanity
+
+Avtentikacija: Clerk
+
+Stil: Tailwind CSS
