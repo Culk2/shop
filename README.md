@@ -20,8 +20,6 @@ Dodajanje in odstranjevanje izdelkov iz košarice
 
 Pregled in urejanje košarice
 
-Plačilni sistem (simuliran / integracija z API)
-
 Administratorski panel za upravljanje izdelkov
 
 Responsiven dizajn (mobilne naprave, tablice, namizni računalniki)
@@ -64,8 +62,6 @@ Filtriranje in iskanje izdelkov
 Wishlist (seznam želja)
 
 Ocene in komentarji uporabnikov
-
-Pravi plačilni sistem (Stripe / PayPal)
 
 Uporabniški profil in zgodovina naročil
 
