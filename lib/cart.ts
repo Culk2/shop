@@ -1,24 +1,9 @@
-// app/lib/cart.ts
-import { createClient, SanityDocument } from '@sanity/client'
-import { currentUser } from '@clerk/nextjs/server'
+// lib/cart.ts (ali kje koli je getCart)
+'use server'
 
-interface CartItem {
-  _key: string
-  _type: string
-  productId: string
-  slug?: string
-  name: string
-  price: number
-  quantity: number
-  imageUrl?: string
-  size?: string | null
-  color?: string | null
-}
-
-interface Cart extends SanityDocument {
-  userId: string
-  items: CartItem[]
-}
+import { createClient } from '@sanity/client'
+import { auth } from '@clerk/nextjs/server'
+import groq from 'groq'
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -28,87 +13,45 @@ const client = createClient({
   token: process.env.SANITY_WRITE_TOKEN!,
 })
 
-export async function addToCart(product: any) {
-  const user = await currentUser()
-  if (!user) return false
+export async function getCart() {
+  const { userId } = await auth()
+  console.log('[getCart] User ID iz Clerk:', userId)
 
-  let cart: Cart | null = null
+  if (!userId) {
+    console.log('[getCart] Ni prijavljenega uporabnika → vračam prazen cart')
+    return { items: [], cartId: null }
+  }
+
   try {
-    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
-  } catch {
-    cart = null
+    const cartDoc = await client.fetch(
+      groq`*[_type == "cart" && userId == $userId][0] {
+        _id,
+        items[] {
+          _key,
+          productId,
+          name,
+          price,
+          quantity,
+          selectedSize,
+          selectedColor,
+          imageUrl
+        }
+      }`,
+      { userId }
+    )
+
+    console.log('[getCart] Najden document:', cartDoc ? 'DA' : 'NE')
+    if (cartDoc) {
+      console.log('[getCart] Cart ID:', cartDoc._id)
+      console.log('[getCart] Število itemov:', cartDoc.items?.length || 0)
+      console.log('[getCart] Items vsebina:', JSON.stringify(cartDoc.items || [], null, 2))
+      return { items: cartDoc.items || [], cartId: cartDoc._id }
+    } else {
+      console.log('[getCart] Cart document za userId', userId, 'ne obstaja')
+      return { items: [], cartId: null }
+    }
+  } catch (err) {
+    console.error('[getCart] NAPAKA pri fetchu:', err)
+    return { items: [], cartId: null }
   }
-
-  if (!cart) {
-    // ustvari prazno košarico
-    const newCart = {
-      _type: 'cart',
-      userId: user.id,
-      items: [],
-    } as unknown as Cart
-
-    cart = await client.create(newCart) as Cart
-  }
-
-  cart.items = cart.items || []
-
-  // Poišči obstoječi izdelek z enakim _id, size in color
-  const existingIndex = cart.items.findIndex(
-    (item) =>
-      item.productId === product._id &&
-      item.size === product.size &&
-      item.color === product.color
-  )
-
-  if (existingIndex !== -1) {
-    cart.items[existingIndex].quantity += product.quantity || 1
-  } else {
-    cart.items.push({
-      _key: product._id + '-' + Date.now(),
-      _type: 'object',
-      productId: product._id,
-      slug: typeof product.slug === 'string' ? product.slug : product.slug?.current,
-      name: product.name,
-      price: product.price,
-      quantity: product.quantity || 1,
-      imageUrl: product.imageUrl || '/placeholder.jpg',
-      size: product.size || null,
-      color: product.color || null,
-    })
-  }
-
-  await client.patch(cart._id).set({ items: cart.items }).commit()
-}
-
-export async function getCart(): Promise<Cart> {
-  const user = await currentUser()
-  if (!user) {
-    return {
-      _id: '',
-      _type: 'cart',
-      userId: '',
-      items: [],
-    } as unknown as Cart
-  }
-
-  let cart: Cart | null = null
-  try {
-    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
-  } catch {
-    cart = null
-  }
-
-  return cart ?? ({
-    _id: '',
-    _type: 'cart',
-    userId: user.id,
-    items: [],
-  } as unknown as Cart)
-}
-
-export async function clearCart() {
-  const user = await currentUser()
-  if (!user) return
-
-  await client.patch(user.id).set({ items: [] }).commit()
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { addToCartAction } from '@/app/actions/cart';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
@@ -15,20 +16,39 @@ export default function ProductCard({ product }: { product: Product }) {
   const [showModal, setShowModal] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleAddToCart = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const form = new FormData(event.currentTarget);
-    const productData = JSON.parse(form.get('product') as string);
-    const size = form.get('size') as string;
-    const color = form.get('color') as string;
-    const qty = parseInt(form.get('quantity') as string, 10);
+    startTransition(async () => {
+      try {
+        const form = new FormData(event.currentTarget);
+        const productData = JSON.parse(form.get('product') as string);
+        const size = form.get('size') as string;
+        const color = form.get('color') as string;
+        const qty = parseInt(form.get('quantity') as string, 10) || 1;
 
-    await addToCartAction({ ...productData, size, color, quantity: qty });
+        const result = await addToCartAction({
+          ...productData,
+          size,
+          color,
+          quantity: qty,
+        });
 
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+        // Predpostavimo, da action vrne { success: true } ali vsaj ne vrže errorja
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 2000);
+
+        // Osvežimo router cache, da se košarica prikaže pravilno
+        router.refresh();
+      } catch (error) {
+        console.error('Napaka pri dodajanju v košarico:', error);
+        // Tukaj lahko dodaš toast/error sporočilo za uporabnika
+        alert('Pri dodajanju je prišlo do napake. Poskusi ponovno.');
+      }
+    });
   };
 
   return (
@@ -136,15 +156,25 @@ export default function ProductCard({ product }: { product: Product }) {
                         value={quantity}
                         onChange={(e) => setQuantity(Number(e.target.value) || 1)}
                         className="border p-3 rounded text-black"
+                        disabled={isPending}
                       />
                     </div>
 
                     <button
                       type="submit"
+                      disabled={isPending}
                       className={`w-full mt-6 py-4 rounded-xl text-xl font-bold transition
-                        ${addedToCart ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white'}`}
+                        ${isPending 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : addedToCart 
+                            ? 'bg-green-600 text-white' 
+                            : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                     >
-                      {addedToCart ? 'Dodano v košarico' : 'Dodaj v košarico'}
+                      {isPending 
+                        ? 'Dodajam...' 
+                        : addedToCart 
+                          ? 'Dodano v košarico ✓' 
+                          : 'Dodaj v košarico'}
                     </button>
                   </form>
                 </SignedIn>
@@ -152,7 +182,7 @@ export default function ProductCard({ product }: { product: Product }) {
                 {/* NEPRIJAVLJEN */}
                 <SignedOut>
                   <SignInButton mode="modal">
-                    <button className="w-full py-4 rounded-xl bg-black text-white text-xl font-bold">
+                    <button className="w-full py-4 rounded-xl bg-black text-white text-xl font-bold hover:bg-gray-800 transition">
                       Najprej se prijavi
                     </button>
                   </SignInButton>
@@ -160,7 +190,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-center text-black font-medium text-lg"
+                  className="text-center text-black font-medium text-lg hover:underline"
                 >
                   Zapri
                 </button>
