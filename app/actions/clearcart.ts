@@ -3,6 +3,7 @@
 
 import { createClient } from '@sanity/client'
 import { currentUser } from '@clerk/nextjs/server'
+import { getCart } from '@/lib/cart'
 import { revalidatePath } from 'next/cache'
 
 const client = createClient({
@@ -18,8 +19,11 @@ export async function clearCart() {
   if (!user) return
 
   try {
+    const cart = await getCart()
+    if (!cart?._id) return
+
     await client
-      .patch(user.id)
+      .patch(cart._id)
       .unset(['items']) // izbriše CELOTNO košarico
       .commit()
 

@@ -63,8 +63,11 @@ export async function updateCartQuantity(itemKey: string, quantity: number) {
   const user = await currentUser()
   if (!user) return
 
+  const cart = await getCart()
+  if (!cart?._id) return
+
   await client
-    .patch(user.id)
+    .patch(cart._id)
     .set({ [`items[_key=="${itemKey}"].quantity`]: quantity })
     .commit()
 

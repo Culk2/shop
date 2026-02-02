@@ -32,12 +32,10 @@ export async function addToCart(product: any) {
   const user = await currentUser()
   if (!user) return false
 
-  let cart: Cart | null = null
-  try {
-    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
-  } catch {
-    cart = null
-  }
+  let cart = (await client.fetch<Cart>(
+    '*[_type == "cart" && userId == $userId][0]',
+    { userId: user.id }
+  )) as Cart | null
 
   if (!cart) {
     // ustvari prazno košarico
@@ -52,10 +50,13 @@ export async function addToCart(product: any) {
 
   cart.items = cart.items || []
 
+  const productId = product?._id ?? product?.productId
+  if (!productId) return false
+
   // Poišči obstoječi izdelek z enakim _id, size in color
   const existingIndex = cart.items.findIndex(
     (item) =>
-      item.productId === product._id &&
+      item.productId === productId &&
       item.size === product.size &&
       item.color === product.color
   )
@@ -64,9 +65,9 @@ export async function addToCart(product: any) {
     cart.items[existingIndex].quantity += product.quantity || 1
   } else {
     cart.items.push({
-      _key: product._id + '-' + Date.now(),
+      _key: productId + '-' + Date.now(),
       _type: 'object',
-      productId: product._id,
+      productId,
       slug: typeof product.slug === 'string' ? product.slug : product.slug?.current,
       name: product.name,
       price: product.price,
@@ -91,12 +92,10 @@ export async function getCart(): Promise<Cart> {
     } as unknown as Cart
   }
 
-  let cart: Cart | null = null
-  try {
-    cart = (await client.getDocument<Cart>(user.id)) as Cart | null
-  } catch {
-    cart = null
-  }
+  const cart = (await client.fetch<Cart>(
+    '*[_type == "cart" && userId == $userId][0]',
+    { userId: user.id }
+  )) as Cart | null
 
   return cart ?? ({
     _id: '',
@@ -107,8 +106,8 @@ export async function getCart(): Promise<Cart> {
 }
 
 export async function clearCart() {
-  const user = await currentUser()
-  if (!user) return
+  const cart = await getCart()
+  if (!cart?._id) return
 
-  await client.patch(user.id).set({ items: [] }).commit()
+  await client.patch(cart._id).set({ items: [] }).commit()
 }
