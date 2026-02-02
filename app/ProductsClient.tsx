@@ -9,6 +9,7 @@ interface Product {
   price: number;
   imageUrl?: string | null;
   category?: string | { title?: string };
+  sizes?: string[];
 }
 
 export default function ProductsClient({ products }: { products: Product[] }) {

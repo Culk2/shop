@@ -7,7 +7,8 @@ export async function getProducts() {
       name,
       price,
       "imageUrl": image.asset->url,
-      "category": category->title
+      "category": category->title,
+      sizes
     }
   `);
 }

@@ -10,6 +10,8 @@ type Product = {
   name: string;
   price: number;
   imageUrl?: string | null;
+  category?: string | { title?: string };
+  sizes?: string[];
 };
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -50,6 +52,32 @@ export default function ProductCard({ product }: { product: Product }) {
       }
     });
   };
+
+  const getCategoryName = (category?: Product["category"]) => {
+    if (!category) return null;
+    if (typeof category === "string") return category;
+    return category.title ?? null;
+  };
+
+  const categoryName = getCategoryName(product.category);
+  const normalizedCategory = typeof categoryName === "string"
+    ? categoryName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+    : null;
+  const isShoes =
+    typeof normalizedCategory === "string" &&
+    (normalizedCategory.includes("cevl") ||
+      normalizedCategory.includes("obutev") ||
+      normalizedCategory.includes("cevlji"));
+
+  const sizeOptions =
+    Array.isArray(product.sizes) && product.sizes.length > 0
+      ? product.sizes
+      : isShoes
+        ? ["36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"]
+        : ["S", "M", "L", "XL"];
 
   return (
     <>
@@ -129,10 +157,11 @@ export default function ProductCard({ product }: { product: Product }) {
                       <label className="text-black mb-1">Velikost</label>
                       <select name="size" required className="border p-3 rounded text-black">
                         <option value="">Izberi velikost</option>
-                        <option>S</option>
-                        <option>M</option>
-                        <option>L</option>
-                        <option>XL</option>
+                        {sizeOptions.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))}
                       </select>
                     </div>
 

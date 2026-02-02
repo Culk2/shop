@@ -1,38 +1,128 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { updateCartQuantity } from '@/app/actions/cart'
+import { updateCartQuantity, removeFromCartAction } from '@/app/actions/cart'
 
-export default function CartItemControls({ itemKey, initialQuantity }: { itemKey: string; initialQuantity: number }) {
-  const [quantity, setQuantity] = useState(initialQuantity)
-  const [isPending, startTransition] = useTransition()
+type Props = {
+  cartId: string | null
+  itemKey: string
+  quantity: number
+}
 
-  const changeQuantity = (delta: number) => {
-    const newQty = quantity + delta
-    if (newQty < 1) return
-    setQuantity(newQty)
+type PendingAction = null | 'inc' | 'dec' | 'remove'
+
+export default function CartItemControls({ cartId, itemKey, quantity }: Props) {
+  const [pending, startTransition] = useTransition()
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null)
+
+  const handleQuantityChange = (delta: number) => {
+    const newQuantity = quantity + delta
+    if (newQuantity < 1) return
+    if (!cartId) return
+
+    setPendingAction(delta > 0 ? 'inc' : 'dec')
+
     startTransition(async () => {
-      await updateCartQuantity(itemKey, newQty)
+      try {
+        const result = await updateCartQuantity(cartId, itemKey, newQuantity)
+        if (!result.success) {
+          console.error('Napaka pri posodobitvi količine:', result.error)
+        }
+      } finally {
+        setPendingAction(null)
+      }
     })
   }
 
+  const handleRemove = () => {
+    if (!cartId) {
+      console.error('Brisanje ni mogoče – cartId je null ali undefined!')
+      alert('Napaka: košarica ni pravilno naložena. Poskusi osvežiti stran (F5).')
+      return
+    }
+
+    setPendingAction('remove')
+
+    startTransition(async () => {
+      try {
+        const result = await removeFromCartAction(cartId, itemKey)
+        if (!result.success) {
+          console.error('Brisanje ni uspelo:', result.error)
+          alert('Napaka pri brisanju: ' + (result.error || 'Neznana napaka'))
+        }
+      } finally {
+        setPendingAction(null)
+      }
+    })
+  }
+
+  const disabledAll = pending // globalno zaklene med requestom
+
   return (
-    <div className="flex items-center gap-2">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
       <button
-        onClick={() => changeQuantity(-1)}
-        disabled={isPending}
-        className="p-2 bg-gray-200 rounded text-black font-bold"
+        onClick={() => handleQuantityChange(-1)}
+        disabled={disabledAll || quantity <= 1}
+        style={pillBtn}
+        aria-label="Zmanjšaj količino"
+        title="Zmanjšaj"
       >
-        -
+        {pendingAction === 'dec' ? '…' : '−'}
       </button>
-      <span className="text-black font-medium">{quantity}</span>
+
+      <span style={{ minWidth: 28, textAlign: 'center', fontWeight: 700 }}>
+        {quantity}
+      </span>
+
       <button
-        onClick={() => changeQuantity(1)}
-        disabled={isPending}
-        className="p-2 bg-gray-200 rounded text-black font-bold"
+        onClick={() => handleQuantityChange(1)}
+        disabled={disabledAll}
+        style={pillBtn}
+        aria-label="Povečaj količino"
+        title="Povečaj"
       >
-        +
+        {pendingAction === 'inc' ? '…' : '+'}
+      </button>
+
+      <button
+        onClick={handleRemove}
+        disabled={disabledAll}
+        title={pendingAction === 'remove' ? 'Brišem…' : 'Odstrani iz košarice'}
+        style={{
+          ...iconBtn,
+          color: pendingAction === 'remove' ? '#9ca3af' : '#ef4444',
+          cursor: disabledAll ? 'not-allowed' : 'pointer',
+        }}
+        aria-label="Odstrani iz košarice"
+      >
+        {pendingAction === 'remove' ? 'Brišem…' : '🗑️'}
       </button>
     </div>
   )
+}
+
+const pillBtn: React.CSSProperties = {
+  width: 34,
+  height: 34,
+  borderRadius: 12,
+  border: '1px solid #e8eaee',
+  background: '#fff',
+  fontWeight: 900,
+  display: 'grid',
+  placeItems: 'center',
+  cursor: 'pointer',
+  userSelect: 'none',
+}
+
+const iconBtn: React.CSSProperties = {
+  marginLeft: 8,
+  border: '1px solid #e8eaee',
+  background: '#fff',
+  borderRadius: 12,
+  height: 34,
+  padding: '0 10px',
+  fontSize: '1rem',
+  fontWeight: 700,
+  display: 'grid',
+  placeItems: 'center',
 }
