@@ -1,7 +1,7 @@
-import { client } from "@/sanity/lib/client";
+import { dataClient } from "@/lib/dataClient";
 
 export async function getProducts() {
-  return await client.fetch(`
+  return await dataClient.fetch(`
     *[_type == "product"]{
       _id,
       name,

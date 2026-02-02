@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 // app/about/page.tsx
 
@@ -17,7 +17,7 @@ export default function AboutPage() {
           className="text-center space-y-6"
         >
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            O nas – <span className="text-primary">StyleUp</span>
+            O nas â€“ <span className="text-primary">StyleUp</span>
           </h1>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
             StyleUp je sodobna spletna trgovina z oblačili, ustvarjena za vse,
@@ -74,11 +74,11 @@ export default function AboutPage() {
           <p className="text-gray-600 leading-relaxed">
             StyleUp je nastal iz želje ustvariti spletno trgovino, kjer moda ni
             le trend, ampak način izražanja. Verjamemo, da se vsakdo zasluži
-            počutiti dobro v oblačilih, ki jih nosi – ne glede na priložnost.
+            počutiti dobro v oblačilih, ki jih nosi â€“ ne glede na priložnost.
           </p>
           <p className="text-gray-600 leading-relaxed">
             Naš cilj je zgraditi skupnost ljudi, ki cenijo stil, kakovost in
-            samozavest. StyleUp ni le trgovina – je življenjski slog.
+            samozavest. StyleUp ni le trgovina â€“ je življenjski slog.
           </p>
         </motion.div>
       </div>

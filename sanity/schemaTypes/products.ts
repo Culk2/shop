@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+﻿import { defineType, defineField } from "sanity";
 
 export default defineType({
   name: "product",
@@ -35,7 +35,7 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    /* 🔢 VELIKOST / ŠTEVILKA */
+    /* đź”˘ VELIKOST / ŠTEVILKA */
     defineField({
       name: "sizes",
       title: "Velikosti / Številke",
@@ -47,7 +47,7 @@ export default defineType({
       },
     }),
 
-    /* 🎨 BARVE */
+    /* đźŽ¨ BARVE */
     defineField({
       name: "colors",
       title: "Barve",
