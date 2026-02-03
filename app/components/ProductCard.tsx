@@ -1,6 +1,7 @@
-'use client';
+﻿'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { addToCartAction } from '@/app/actions/cart';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
@@ -10,12 +11,42 @@ type Product = {
   price: number;
   imageUrl?: string | null;
   category?: string | { title?: string };
+  sizes?: string[];
 };
 
 export default function ProductCard({ product }: { product: Product }) {
   const [showModal, setShowModal] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const isE2E = process.env.NEXT_PUBLIC_E2E_MOCKS === '1';
+
+  const getCategoryName = (category?: Product['category']) => {
+    if (!category) return null;
+    if (typeof category === 'string') return category;
+    return category.title ?? null;
+  };
+
+  const categoryName = getCategoryName(product.category);
+  const normalizedCategory = typeof categoryName === 'string'
+    ? categoryName
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+    : null;
+  const isShoes =
+    typeof normalizedCategory === 'string' &&
+    (normalizedCategory.includes('cevl') ||
+      normalizedCategory.includes('obutev') ||
+      normalizedCategory.includes('cevlji'));
+
+  const sizeOptions =
+    Array.isArray(product.sizes) && product.sizes.length > 0
+      ? product.sizes
+      : isShoes
+        ? ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
+        : ['S', 'M', 'L', 'XL'];
 
   const getCategoryName = (category?: Product['category']) => {
     if (!category) return null;
@@ -44,17 +75,89 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const form = new FormData(event.currentTarget);
-    const productData = JSON.parse(form.get('product') as string);
-    const size = form.get('size') as string;
-    const color = form.get('color') as string;
-    const qty = parseInt(form.get('quantity') as string, 10);
+    startTransition(async () => {
+      try {
+        const form = new FormData(event.currentTarget);
+        const productData = JSON.parse(form.get('product') as string);
+        const size = form.get('size') as string;
+        const color = form.get('color') as string;
+        const qty = parseInt(form.get('quantity') as string, 10) || 1;
 
-    await addToCartAction({ ...productData, size, color, quantity: qty });
+        await addToCartAction({
+          ...productData,
+          size,
+          color,
+          quantity: qty,
+        });
 
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 2000);
+        router.refresh();
+      } catch (error) {
+        console.error('Napaka pri dodajanju v košarico:', error);
+        alert('Pri dodajanju je prišlo do napake. Poskusi ponovno.');
+      }
+    });
   };
+
+  const form = (
+    <form onSubmit={handleAddToCart} className="w-full space-y-4">
+      <input type="hidden" name="product" value={JSON.stringify(product)} />
+
+      <div className="flex flex-col">
+        <label className="text-black mb-1">Velikost</label>
+        <select name="size" required className="border p-3 rounded text-black">
+          <option value="">Izberi velikost</option>
+          {sizeOptions.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-black mb-1">Barva</label>
+        <select name="color" required className="border p-3 rounded text-black">
+          <option value="">Izberi barvo</option>
+          <option>Črna</option>
+          <option>Bela</option>
+          <option>Rdeča</option>
+          <option>Modra</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-black mb-1">Količina</label>
+        <input
+          type="number"
+          name="quantity"
+          min={1}
+          value={quantity}
+          onChange={(e) => setQuantity(Number(e.target.value) || 1)}
+          className="border p-3 rounded text-black"
+          disabled={isPending}
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className={`w-full mt-6 py-4 rounded-xl text-xl font-bold transition
+          ${isPending
+            ? 'bg-gray-400 cursor-not-allowed'
+            : addedToCart
+              ? 'bg-green-600 text-white'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+      >
+        {isPending
+          ? 'Dodajam...'
+          : addedToCart
+            ? 'Dodano v košarico ✓'
+            : 'Dodaj v košarico'}
+      </button>
+    </form>
+  );
 
   return (
     <>
@@ -125,64 +228,21 @@ export default function ProductCard({ product }: { product: Product }) {
                   {product.price.toFixed(2)} €
                 </div>
 
-                {/* PRIJAVLJEN */}
-                <SignedIn>
-                  <form onSubmit={handleAddToCart} className="w-full space-y-4">
-                    <input type="hidden" name="product" value={JSON.stringify(product)} />
+                {isE2E ? (
+                  form
+                ) : (
+                  <>
+                    <SignedIn>{form}</SignedIn>
 
-                    <div className="flex flex-col">
-                      <label className="text-black mb-1">Velikost</label>
-                      <select name="size" required className="border p-3 rounded text-black">
-                        <option value="">Izberi velikost</option>
-                        {sizeOptions.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <label className="text-black mb-1">Barva</label>
-                      <select name="color" required className="border p-3 rounded text-black">
-                        <option value="">Izberi barvo</option>
-                        <option>Črna</option>
-                        <option>Bela</option>
-                        <option>Rdeča</option>
-                        <option>Modra</option>
-                      </select>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <label className="text-black mb-1">Količina</label>
-                      <input
-                        type="number"
-                        name="quantity"
-                        min={1}
-                        value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value) || 1)}
-                        className="border p-3 rounded text-black"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      className={`w-full mt-6 py-4 rounded-xl text-xl font-bold transition
-                        ${addedToCart ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white'}`}
-                    >
-                      {addedToCart ? 'Dodano v košarico' : 'Dodaj v košarico'}
-                    </button>
-                  </form>
-                </SignedIn>
-
-                {/* NEPRIJAVLJEN */}
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="w-full py-4 rounded-xl bg-black text-white text-xl font-bold">
-                      Najprej se prijavi
-                    </button>
-                  </SignInButton>
-                </SignedOut>
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <button className="w-full py-4 rounded-xl bg-black text-white text-xl font-bold hover:bg-gray-800 transition">
+                          Najprej se prijavi
+                        </button>
+                      </SignInButton>
+                    </SignedOut>
+                  </>
+                )}
 
                 <button
                   onClick={() => setShowModal(false)}

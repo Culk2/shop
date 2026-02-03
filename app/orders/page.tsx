@@ -1,23 +1,30 @@
-import { currentUser } from '@clerk/nextjs/server'
-import { createClient } from '@sanity/client'
+﻿import { getCurrentUser } from '@/lib/auth'
+import { dataClient } from '@/lib/dataClient'
 import { redirect } from 'next/navigation'
 
-const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: '2024-01-01',
-  useCdn: false,
-})
+type OrderItem = {
+  _key: string
+  name: string
+  price: number
+  quantity: number
+}
+
+type Order = {
+  _id: string
+  createdAt: string
+  total: number
+  items: OrderItem[]
+}
 
 async function getOrders(userId: string) {
-  return client.fetch(
+  return dataClient.fetch(
     `*[_type == "order" && userId == $userId] | order(createdAt desc)` ,
     { userId }
-  )
+  ) as Promise<Order[]>
 }
 
 export default async function OrdersPage() {
-  const user = await currentUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/')
 
   const orders = await getOrders(user.id)
@@ -31,7 +38,7 @@ export default async function OrdersPage() {
           <p className="text-black">Še nimaš naročil.</p>
         ) : (
           <div className="space-y-8">
-            {orders.map((order: any) => (
+            {orders.map((order) => (
               <div
                 key={order._id}
                 className="bg-white rounded-xl shadow-md p-6 space-y-4"
@@ -44,7 +51,7 @@ export default async function OrdersPage() {
                 </div>
 
                 <div className="space-y-2">
-                  {order.items.map((item: any) => (
+                  {order.items.map((item) => (
                     <div key={item._key} className="flex justify-between">
                       <span className="text-black">
                         {item.name} × {item.quantity}

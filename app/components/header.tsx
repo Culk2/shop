@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { ShoppingBag } from 'lucide-react';
@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 export default function Header() {
   const [cartCount, setCartCount] = useState(0);
 
-  // Funkcija, ki pridobi število izdelkov iz Sanity (za prijavljenega uporabnika)
   async function fetchCartCount() {
     try {
       const res = await fetch('/api/cart-count', { cache: 'no-store' });
@@ -23,9 +22,9 @@ export default function Header() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCartCount();
 
-    const handleRouteChange = () => fetchCartCount();
     window.addEventListener('focus', fetchCartCount);
     window.addEventListener('cart-updated', fetchCartCount);
 
@@ -65,7 +64,6 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-6">
-            {/* Košarica z live badge-om */}
             <Link href="/cart" className="relative">
               <ShoppingBag className="w-8 h-8 text-gray-700 hover:text-indigo-600 transition" />
               {cartCount > 0 && (
