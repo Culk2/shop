@@ -1,7 +1,15 @@
 // middleware.ts
 import { clerkMiddleware } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export default clerkMiddleware()
+const isE2E =
+  process.env.E2E_MOCKS === '1' || process.env.NEXT_PUBLIC_E2E_MOCKS === '1'
+
+export default isE2E
+  ? function middleware() {
+      return NextResponse.next()
+    }
+  : clerkMiddleware()
 
 export const config = {
   matcher: [

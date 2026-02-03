@@ -1,22 +1,21 @@
-// app/actions/createOrder.ts
+﻿// app/actions/createOrder.ts
 'use server'
 
-import { createClient } from '@sanity/client'
-import { currentUser } from '@clerk/nextjs/server'
+import { dataClient } from '@/lib/dataClient'
+import { getCurrentUser } from '@/lib/auth'
 
-const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: '2024-01-01',
-  useCdn: false,
-  token: process.env.SANITY_WRITE_TOKEN!,
-})
+type CartItem = {
+  _key: string
+  name: string
+  price: number
+  quantity: number
+}
 
-export async function createOrder(items: any[], total: number) {
-  const user = await currentUser()
+export async function createOrder(items: CartItem[], total: number) {
+  const user = await getCurrentUser()
   if (!user) return
 
-  await client.create({
+  await dataClient.create({
     _type: 'order',
     userId: user.id,
     items,

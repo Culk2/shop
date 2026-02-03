@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:e2e:auth": "playwright test -c playwright.auth.config.ts",
+    "test:e2e:all": "npm run test:e2e && npm run test:e2e:auth"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.4",
@@ -28,6 +31,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@playwright/test": "^1.49.1",
     "baseline-browser-mapping": "^2.8.32",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",

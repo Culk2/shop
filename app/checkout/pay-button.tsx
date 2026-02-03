@@ -1,4 +1,4 @@
-// app/checkout/pay-button.tsx
+﻿// app/checkout/pay-button.tsx
 'use client'
 
 import { useState } from 'react'
@@ -6,8 +6,15 @@ import { useRouter } from 'next/navigation'
 import { clearCart } from '../actions/clearcart'
 import { createOrder } from '@/app/actions/createOrder'
 
+type CartItem = {
+  _key: string
+  name: string
+  price: number
+  quantity: number
+}
+
 type Props = {
-  items: any[]
+  items: CartItem[]
   totalPrice: number
 }
 
@@ -18,13 +25,8 @@ export default function CheckoutPayButton({ items, totalPrice }: Props) {
   const handlePay = async () => {
     setLoading(true)
 
-    // 1️⃣ Shrani naročilo
     await createOrder(items, totalPrice)
-
-    // 2️⃣ Počisti košarico
     await clearCart()
-
-    // 3️⃣ Redirect na success page
     router.push('/checkout/success')
   }
 
