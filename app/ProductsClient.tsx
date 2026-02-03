@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from "react";
 import ProductCard from "./components/ProductCard";
@@ -82,9 +82,9 @@ export default function ProductsClient({ products }: { products: Product[] }) {
               className="px-4 py-2 border border-gray-300 rounded-lg bg-black text-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
             >
               <option value="all">Vse cene</option>
-              <option value="under20">Pod 20€</option>
-              <option value="20to50">20€ – 50€</option>
-              <option value="over50">Nad 50€</option>
+              <option value="under20">Pod 20â‚¬</option>
+              <option value="20to50">20â‚¬ â€“ 50â‚¬</option>
+              <option value="over50">Nad 50â‚¬</option>
             </select>
 
             {/* FILTER KATEGORIJE */}

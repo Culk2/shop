@@ -1,5 +1,12 @@
-// sanity/schema/cart.ts
-export default {
+﻿// sanity/schema/cart.ts
+import type { Rule } from 'sanity'
+
+type PreviewArgs = {
+  title?: string
+  subtitle?: number
+}
+
+const cartSchema = {
   name: 'cart',
   title: 'Košarica',
   type: 'document',
@@ -8,7 +15,7 @@ export default {
       name: 'userId',
       title: 'Clerk User ID',
       type: 'string',
-      validation: (Rule: any) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     },
     {
       name: 'items',
@@ -26,11 +33,10 @@ export default {
               name: 'quantity',
               type: 'number',
               title: 'Količina',
-              validation: (Rule: any) => Rule.min(1),
+              validation: (rule: Rule) => rule.min(1),
             },
             { name: 'imageUrl', type: 'string', title: 'Image URL' },
 
-            // DODANO: velikost in barva
             { name: 'selectedSize', type: 'string', title: 'Velikost' },
             { name: 'selectedColor', type: 'string', title: 'Barva' },
           ],
@@ -50,7 +56,7 @@ export default {
       title: 'userId',
       subtitle: 'items.length',
     },
-    prepare({ title, subtitle }: any) {
+    prepare({ title, subtitle }: PreviewArgs) {
       return {
         title: `Košarica uporabnika ${title}`,
         subtitle: `${subtitle || 0} izdelkov`,
@@ -58,3 +64,5 @@ export default {
     },
   },
 }
+
+export default cartSchema
