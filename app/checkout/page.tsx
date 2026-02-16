@@ -12,6 +12,7 @@ type CartItem = {
 }
 
 export default async function CheckoutPage() {
+  // Prebere košarico in pripravi checkout povzetek za prikaz.
   const isE2E = process.env.E2E_MOCKS === '1'
   const cart = await getCart()
 

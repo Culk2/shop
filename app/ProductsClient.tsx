@@ -16,6 +16,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
   const [priceFilter, setPriceFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
+  // Upravlja filtriranje in prikaz produktov na strani trgovine.
   // vedno pretvori kategorijo v string
   const getCategoryName = (category?: Product["category"]) => {
     if (!category) return null;

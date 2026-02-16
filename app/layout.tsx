@@ -25,6 +25,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    // Globalni layout: auth provider, header in skupni fonti za vse strani.
     <ClerkProvider>
       <html lang="en">
         <body

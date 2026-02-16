@@ -13,6 +13,7 @@ export default function CartItemControls({ cartId, itemKey, quantity }: Props) {
   const [pending, startTransition] = useTransition()
   const [localQty, setLocalQty] = useState(quantity)
 
+  // Optimistično posodobi količino v UI in nato sinhronizira na strežnik.
   const handleQuantityChange = (delta: number) => {
     const newQuantity = localQty + delta
     if (newQuantity < 1) return

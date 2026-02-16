@@ -23,6 +23,7 @@ type Props = {
 export default function CartItemCard({ item, cartId }: Props) {
   const [isPending, startTransition] = useTransition()
 
+  // Odstrani izdelek iz košarice preko server action.
   const handleRemove = async () => {
     if (!cartId) return
     startTransition(async () => {
