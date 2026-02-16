@@ -13,11 +13,13 @@ type CartItem = {
 }
 
 export default async function CartPage() {
+  // V E2E načinu obidemo auth flow, da so testi deterministični.
   const isE2E =
     process.env.E2E_MOCKS === '1' || process.env.NEXT_PUBLIC_E2E_MOCKS === '1'
   const checkoutHref = isE2E ? '/checkout/success' : '/checkout'
   const cart = await getCart()
 
+  // Izračun skupne cene in količine za prikaz v povzetku.
   const totalPrice =
     cart?.items?.reduce(
       (sum: number, item: CartItem) => sum + item.price * item.quantity,
@@ -37,6 +39,7 @@ export default async function CartPage() {
           Tvoja košarica
         </h1>
 
+        {/* E2E veja in produkcijska veja imata enak UI, razlikuje se auth ovojnica. */}
         {isE2E ? (
           cart?.items?.length ? (
             <div className="grid lg:grid-cols-3 gap-8">

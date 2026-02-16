@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 export default function Header() {
   const [cartCount, setCartCount] = useState(0);
 
+  // Naloži trenutni števec izdelkov v košarici za badge v headerju.
   async function fetchCartCount() {
     try {
       const res = await fetch('/api/cart-count', { cache: 'no-store' });
@@ -25,6 +26,7 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCartCount();
 
+    // Osveži badge ob fokusu okna in po custom cart dogodku.
     window.addEventListener('focus', fetchCartCount);
     window.addEventListener('cart-updated', fetchCartCount);
 

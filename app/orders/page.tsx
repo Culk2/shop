@@ -17,6 +17,7 @@ type Order = {
 }
 
 async function getOrders(userId: string) {
+  // Vrne naročila trenutnega uporabnika, najprej najnovejša.
   return dataClient.fetch(
     `*[_type == "order" && userId == $userId] | order(createdAt desc)` ,
     { userId }
@@ -25,6 +26,7 @@ async function getOrders(userId: string) {
 
 export default async function OrdersPage() {
   const user = await getCurrentUser()
+  // Stran naročil je dostopna samo prijavljenim uporabnikom.
   if (!user) redirect('/')
 
   const orders = await getOrders(user.id)

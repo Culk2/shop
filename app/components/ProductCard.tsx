@@ -22,6 +22,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const isE2E = process.env.NEXT_PUBLIC_E2E_MOCKS === '1';
 
+  // Normalizira različne oblike kategorije (string ali referenca) v enotno ime.
   const getCategoryName = (category?: Product['category']) => {
     if (!category) return null;
     if (typeof category === 'string') return category;
@@ -41,6 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
       normalizedCategory.includes('obutev') ||
       normalizedCategory.includes('cevlji'));
 
+  // Uporabi velikosti iz produkta; če jih ni, določi fallback glede na kategorijo.
   const sizeOptions =
     Array.isArray(product.sizes) && product.sizes.length > 0
       ? product.sizes
@@ -48,6 +50,7 @@ export default function ProductCard({ product }: { product: Product }) {
         ? ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
         : ['S', 'M', 'L', 'XL'];
 
+  // Zbere podatke iz forme in sproži server action za dodajanje v košarico.
   const handleAddToCart = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -137,7 +140,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <>
-      {/* KARTICA */}
+      {/* Kartica odpre modal s podrobnostmi produkta. */}
       <button onClick={() => setShowModal(true)} className="w-full text-left group block">
         <div className="bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-2">
           {product.imageUrl ? (
@@ -165,7 +168,7 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       </button>
 
-      {/* MODAL */}
+      {/* Modal prikazuje detajle in obrazec za dodajanje v košarico. */}
       {showModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4"

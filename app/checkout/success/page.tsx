@@ -17,6 +17,7 @@ type CartDoc = {
 }
 
 async function createOrderFromCart() {
+  // Iz trenutne košarice ustvari naročilo in nato košarico izprazni.
   const userId = await getUserId()
   if (!userId) return { success: false, error: 'Nisi prijavljen' }
 
@@ -57,6 +58,7 @@ async function createOrderFromCart() {
 }
 
 export default async function CheckoutSuccessPage() {
+  // Success stran hkrati zaključi checkout tok in prikaže rezultat uporabniku.
   const result = await createOrderFromCart()
 
   return (

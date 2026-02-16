@@ -22,6 +22,7 @@ export default function CheckoutPayButton({ items, totalPrice }: Props) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
+  // Ustvari naročilo, počisti košarico in preusmeri na success stran.
   const handlePay = async () => {
     setLoading(true)
 
