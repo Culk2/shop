@@ -48,29 +48,6 @@ export default function ProductCard({ product }: { product: Product }) {
         ? ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
         : ['S', 'M', 'L', 'XL'];
 
-  const getCategoryName = (category?: Product['category']) => {
-    if (!category) return null;
-    if (typeof category === 'string') return category;
-    return category.title ?? null;
-  };
-
-  const categoryName = getCategoryName(product.category);
-  const normalizedCategory =
-    typeof categoryName === 'string'
-      ? categoryName
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-      : null;
-  const isShoes =
-    typeof normalizedCategory === 'string' &&
-    (normalizedCategory.includes('cevl') ||
-      normalizedCategory.includes('obutev') ||
-      normalizedCategory.includes('cevlji'));
-
-  const sizeOptions = isShoes
-    ? ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46']
-    : ['S', 'M', 'L', 'XL'];
 
   const handleAddToCart = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -258,3 +235,4 @@ export default function ProductCard({ product }: { product: Product }) {
     </>
   );
 }
+
