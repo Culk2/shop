@@ -1,70 +1,93 @@
-StyleUp 🛍️
+# 🛍️ StyleUp  
+### Moderna spletna trgovina za modne navdušence
 
-Moderno zasnovana spletna trgovina za modne navdušence
+StyleUp je sodobna e-commerce aplikacija, namenjena uporabnikom, ki iščejo trendna oblačila, obutev in modne dodatke. Projekt je osredotočen na intuitivno uporabniško izkušnjo, čisto arhitekturo aplikacije in varen nakupni proces.
 
-📖 Opis projekta
+Projekt je bil razvit kot portfolio aplikacija za prikaz znanja sodobnega spletnega razvoja (frontend + backend).
 
-StyleUp je sodobna spletna trgovina, namenjena uporabnikom, ki iščejo trendna oblačila, obutev in modne dodatke. Projekt je osredotočen na dobro uporabniško izkušnjo, enostavno navigacijo in varen nakupni proces.
+---
 
-Aplikacija omogoča pregled izdelkov, dodajanje v košarico ter upravljanje izdelkov preko administratorskega vmesnika. Zaradi responsivnega dizajna je aplikacija prilagojena za uporabo na vseh napravah.
+## 📖 O projektu
 
-🚀 Funkcionalnosti
+Aplikacija omogoča:
 
-Prijava in registracija uporabnikov
+- Pregled izdelkov po kategorijah  
+- Ogled podrobnosti posameznega izdelka  
+- Dodajanje izdelkov v košarico  
+- Urejanje in odstranjevanje izdelkov iz košarice  
+- Avtentikacijo uporabnikov  
+- Upravljanje izdelkov preko administratorskega panela  
 
-Brskanje po izdelkih in kategorijah
+Zaradi **responsive (mobile-first)** zasnove aplikacija deluje optimalno na mobilnih napravah, tablicah in namiznih računalnikih.
 
-Ogled podrobnosti posameznega izdelka
+---
 
-Dodajanje in odstranjevanje izdelkov iz košarice
+## 🚀 Funkcionalnosti
 
-Pregled in urejanje košarice
+### 👤 Uporabniške funkcionalnosti
+- Registracija in prijava
+- Brskanje po izdelkih in kategorijah
+- Ogled podrobnosti izdelka
+- Dodajanje v košarico
+- Odstranjevanje iz košarice
+- Urejanje količine izdelkov
+- Pregled košarice
 
-Administratorski panel za upravljanje izdelkov
+### 🛠️ Administratorski panel
+- Dodajanje novih izdelkov
+- Urejanje obstoječih izdelkov
+- Brisanje izdelkov
+- Upravljanje kataloga
 
-Responsiven dizajn (mobilne naprave, tablice, namizni računalniki)
+---
 
-🛠️ Uporabljene tehnologije
-Frontend
+## 🛠️ Tehnološki sklad
 
-HTML
+### Frontend
+- HTML  
+- CSS  
+- JavaScript  
+- React  
 
-CSS
+### Backend
+- Node.js  
 
-JavaScript
+### Baza podatkov
+- Sanity (Headless CMS)
 
-React
+### Avtentikacija
+- Clerk  
 
-Backend
+### UI & Stil
+- Tailwind CSS  
 
-Node.js
+---
 
-Baza podatkov
+## 📱 Responsiven dizajn
 
-Sanity
+Aplikacija je zasnovana po principu **mobile-first** in uporablja prilagodljive komponente ter utility-first pristop s Tailwind CSS za optimalno uporabniško izkušnjo na vseh napravah.
 
-Avtentikacija
+---
 
-Clerk
+## 🔮 Možne prihodnje nadgradnje
 
-Stil in UI
+- Napredno filtriranje in iskanje izdelkov  
+- Wishlist (seznam želja)  
+- Ocene in komentarji uporabnikov  
+- Uporabniški profil  
+- Zgodovina naročil  
+- Integracija plačilnega sistema  
 
-Tailwind CSS
+---
 
-📱 Responsiven dizajn
+## 📌 Namen projekta
 
-Aplikacija je zasnovana po principu mobile-first in zagotavlja optimalno uporabniško izkušnjo na vseh velikostih zaslonov.
+StyleUp je bil razvit kot učni in portfolio projekt za:
 
-🔮 Možne prihodnje nadgradnje
+- Poglobitev znanja React ekosistema  
+- Razumevanje povezave med frontend in backend sistemi  
+- Delo z headless CMS (Sanity)  
+- Implementacijo avtentikacije (Clerk)  
+- Gradnjo celostne e-commerce aplikacije  
 
-Filtriranje in iskanje izdelkov
-
-Wishlist (seznam želja)
-
-Ocene in komentarji uporabnikov
-
-Uporabniški profil in zgodovina naročil
-
-📌 Namen projekta
-
-Projekt StyleUp je bil razvit kot del učenja in nadgrajevanja znanja na področju spletnega razvoja ter kot predstavitveni projekt za portfolio.
+Projekt predstavlja primer sodobne full-stack spletne aplikacije.
