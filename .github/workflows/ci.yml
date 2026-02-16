@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  build-and-check:
+  checks-and-e2e:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,5 +31,8 @@ jobs:
       - name: Type check
         run: npx tsc -p tsconfig.json --noEmit
 
-      - name: Build
-        run: npm run build
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: npm run test:e2e
